@@ -1,4 +1,17 @@
-import os
+from normalization_utils import (
+    minmax_normalize,
+    unit_sphere_normalize,
+    quantize,
+    dequantize,
+    compute_errors
+)
+
+from visualization_utils import (
+    plot_error_bars,
+    plot_mesh,
+    compare_meshes
+
+)import os
 import sys
 import json
 import numpy as np
