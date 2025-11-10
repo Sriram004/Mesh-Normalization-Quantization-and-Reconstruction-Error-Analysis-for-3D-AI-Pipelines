@@ -1,0 +1,85 @@
+This is the Unit Sphere normalized version of person.obj.
+
+Each vertex is transformed as:
+
+𝑥
+′
+=
+𝑥
+−
+𝜇
+𝑟
+𝑚
+𝑎
+𝑥
+x
+′
+=
+r
+max
+	​
+
+x−μ
+	​
+
+
+where
+
+𝜇
+μ = centroid (mean of all vertices)
+
+𝑟
+𝑚
+𝑎
+𝑥
+r
+max
+	​
+
+ = farthest vertex distance from the centroid
+
+This maps the entire mesh inside a sphere of radius 1, centered at the origin (0, 0, 0).
+
+🔹 Example
+
+If the farthest vertex from the centroid is 20 units away,
+then after normalization, all vertices are scaled such that:
+
+distance_from_centroid ≤ 1
+
+🔹 Purpose
+
+This method is scale-invariant and rotation-stable, making it excellent for comparing or learning from meshes of different dimensions.
+
+🔹 Visualization
+
+You can verify by plotting:
+
+import open3d as o3d
+pcd = o3d.io.read_point_cloud("outputs/normalized/person_unitsphere.ply")
+o3d.visualization.draw_geometries([pcd])
+
+
+You’ll notice that the mesh appears “centered” — its center lies near (0, 0, 0).
+
+⚙️ How They’re Generated
+
+When you run:
+
+python src/mesh_pipeline.py data/ outputs/
+
+
+Your code:
+
+Reads the vertices from data/person.obj
+
+Applies:
+
+Min–Max Normalization
+
+Unit Sphere Normalization
+
+Saves them into:
+
+outputs/normalized/person_minmax.ply
+outputs/normalized/person_unitsphere.ply
