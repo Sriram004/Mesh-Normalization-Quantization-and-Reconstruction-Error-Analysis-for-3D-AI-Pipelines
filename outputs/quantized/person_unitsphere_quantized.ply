@@ -1,0 +1,143 @@
+This file is created by quantizing the Unit Sphere normalized mesh (person_unitsphere.ply).
+
+Because the unit sphere normalization produces values in the range [-1, 1],
+you first map them to [0, 1] before quantizing:
+
+𝑥
+′
+′
+=
+𝑥
+′
++
+1
+2
+x
+′′
+=
+2
+x
+′
++1
+	​
+
+
+then quantize as:
+
+𝑞
+=
+int
+(
+𝑥
+′
+′
+×
+(
+𝑛
+𝑏
+𝑖
+𝑛
+𝑠
+−
+1
+)
+)
+q=int(x
+′′
+×(n
+bins
+	​
+
+−1))
+
+Later, during dequantization, you’ll map it back:
+
+𝑥
+′
+′
+=
+𝑞
+(
+𝑛
+𝑏
+𝑖
+𝑛
+𝑠
+−
+1
+)
+×
+2
+−
+1
+x
+′′
+=
+(n
+bins
+	​
+
+−1)
+q
+	​
+
+×2−1
+🔹 Purpose
+
+Ensures that even if meshes are centered around 0 (from Unit Sphere normalization),
+they can still be quantized and stored efficiently using only positive bin indices (0–1023).
+
+⚙️ How These Files Are Generated
+
+When you run your pipeline:
+
+python src/mesh_pipeline.py data/ outputs/
+
+
+The following internal steps happen for each mesh (simplified):
+
+# Min–Max Normalized Mesh Quantization
+mm_norm, vmin, vmax = minmax_normalize(vertices)
+mm_q = quantize(mm_norm, bins=1024)
+mm_deq = dequantize(mm_q, bins=1024)
+save_ply_vertices("outputs/quantized/person_quantized.ply", mm_deq)
+
+# Unit Sphere Normalized Mesh Quantization
+us_norm, centroid, scale = unit_sphere_normalize(vertices)
+us_norm01 = (us_norm + 1) / 2    # map [-1,1] → [0,1]
+us_q = quantize(us_norm01, bins=1024)
+us_deq01 = dequantize(us_q, bins=1024)
+us_deq = us_deq01 * 2 - 1        # map back [0,1] → [-1,1]
+save_ply_vertices("outputs/quantized/person_unitsphere_quantized.ply", us_deq)
+
+📊 Why Quantization Matters
+Property	Before Quantization	After Quantization
+Data Type	Float (e.g. 0.756329)	Integer (e.g. 771 / 1023)
+Range	Continuous [0, 1]	Discrete {0, 1, 2, …, 1023}
+Precision	High (depends on float)	Fixed (1 / 1023 ≈ 0.000977)
+File Size	Larger	Smaller
+Readiness for AI Models	Not directly usable	Ready for tokenization or embedding
+
+Quantization effectively compresses the geometry without major structure loss —
+it’s like storing 3D shapes with a fixed grid resolution.
+
+🔍 Example Visualization
+
+Here’s a simple Open3D script to visualize and compare:
+
+import open3d as o3d
+
+# Load both meshes
+mm_q = o3d.io.read_point_cloud("outputs/quantized/person_quantized.ply")
+us_q = o3d.io.read_point_cloud("outputs/quantized/person_unitsphere_quantized.ply")
+
+# Visualize both side-by-side
+print("Min–Max Quantized Mesh:")
+o3d.visualization.draw_geometries([mm_q])
+
+print("Unit Sphere Quantized Mesh:")
+o3d.visualization.draw_geometries([us_q])
+
+
+Both meshes should preserve the same structure as their normalized counterparts,
+but with slightly reduced smoothness due to discretization.
