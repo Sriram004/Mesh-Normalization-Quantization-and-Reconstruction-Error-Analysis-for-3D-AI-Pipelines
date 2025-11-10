@@ -1,0 +1,51 @@
+This is a summary visualization comparing both methods across all meshes.
+(You can add this manually after generating person_mse.png and person_mae.png.)
+
+It shows:
+
+Average MSE and MAE for Min–Max and Unit Sphere methods.
+
+Helps you visually conclude which normalization performs better overall.
+
+🧠 How to Generate This
+
+You can add this snippet at the end of your mesh_pipeline.py:
+
+import json
+import numpy as np
+from pathlib import Path
+import matplotlib.pyplot as plt
+
+summary_path = Path("outputs/summary.json")
+if summary_path.exists():
+    with open(summary_path) as f:
+        data = json.load(f)
+
+    minmax_mse_avg, unitsphere_mse_avg = [], []
+    minmax_mae_avg, unitsphere_mae_avg = [], []
+
+    for entry in data:
+        minmax_mse_avg.append(np.mean(entry["minmax_mse"]))
+        unitsphere_mse_avg.append(np.mean(entry["unitsphere_mse"]))
+        minmax_mae_avg.append(np.mean(entry["minmax_mae"]))
+        unitsphere_mae_avg.append(np.mean(entry["unitsphere_mae"]))
+
+    # Compute averages across all meshes
+    methods = ["Min–Max", "Unit Sphere"]
+    mse_means = [np.mean(minmax_mse_avg), np.mean(unitsphere_mse_avg)]
+    mae_means = [np.mean(minmax_mae_avg), np.mean(unitsphere_mae_avg)]
+
+    # Plot comparison
+    fig, ax = plt.subplots(1, 2, figsize=(10, 4))
+    ax[0].bar(methods, mse_means, color=['skyblue', 'orange'])
+    ax[0].set_title("Average MSE Across Meshes")
+    ax[0].set_ylabel("MSE")
+
+    ax[1].bar(methods, mae_means, color=['lightgreen', 'coral'])
+    ax[1].set_title("Average MAE Across Meshes")
+    ax[1].set_ylabel("MAE")
+
+    plt.suptitle("Overall Comparison of Normalization Methods")
+    plt.tight_layout()
+    plt.savefig("outputs/plots/comparison_plot.png")
+    plt.close()
