@@ -1,0 +1,75 @@
+Each vertex (x, y, z) has been transformed using:
+
+𝑥
+′
+=
+𝑥
+−
+𝑥
+𝑚
+𝑖
+𝑛
+𝑥
+𝑚
+𝑎
+𝑥
+−
+𝑥
+𝑚
+𝑖
+𝑛
+x
+′
+=
+x
+max
+	​
+
+−x
+min
+	​
+
+x−x
+min
+	​
+
+	​
+
+
+This maps every axis into the range [0, 1], ensuring a consistent coordinate scale across all meshes.
+
+🔹 Example
+
+If your original mesh coordinates were:
+
+x ∈ [-12.4, 15.7]
+y ∈ [-8.2, 9.1]
+z ∈ [0.0, 24.3]
+
+
+then after Min–Max normalization:
+
+x', y', z' ∈ [0, 1]
+
+
+Now the mesh fits neatly inside a unit cube.
+
+🔹 Purpose
+
+This ensures scale consistency between meshes of different sizes — ideal for models or pipelines that expect normalized data (like SeamGPT).
+
+🔹 Visualization
+
+You can open this file in:
+
+MeshLab
+
+Blender
+
+Open3D
+
+In code (Open3D example):
+
+import open3d as o3d
+mesh = o3d.io.read_point_cloud("outputs/normalized/person_minmax.ply")
+o3d.visualization.draw_geometries([mesh])
