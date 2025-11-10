@@ -1,0 +1,19 @@
+import open3d as o3d
+
+pcd = o3d.io.read_point_cloud("outputs/reconstructed/person_unitsphere_reconstructed.ply")
+o3d.visualization.draw_geometries([pcd])
+o3d.io.write_image("report/screenshots/reconstructed_mesh.png")
+Or (Matplotlib 3D plot):
+
+python
+Copy code
+from mpl_toolkits.mplot3d import Axes3D
+import matplotlib.pyplot as plt
+import numpy as np
+
+vertices = np.loadtxt("outputs/reconstructed/person_unitsphere_reconstructed.ply", skiprows=10)
+fig = plt.figure()
+ax = fig.add_subplot(111, projection="3d")
+ax.scatter(vertices[:, 0], vertices[:, 1], vertices[:, 2], s=1)
+plt.title("Reconstructed Mesh")
+plt.savefig("report/screenshots/reconstructed_mesh.png")
